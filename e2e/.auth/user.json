@@ -1,0 +1,18 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:5173",
+      "localStorage": [
+        {
+          "name": "qabase.theme",
+          "value": "{\"mode\":\"system\",\"color\":\"zinc\"}"
+        },
+        {
+          "name": "sb-hwaitbjeoemtbleoinqc-auth-token",
+          "value": "{\"access_token\":\"eyJhbGciOiJFUzI1NiIsImtpZCI6IjdlNTRkZTI1LWViY2QtNGJiNy1iNDE1LTY1MDExMjlmMTg3ZiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2h3YWl0Ymplb2VtdGJsZW9pbnFjLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJlYmNiZWQ2Yy1mNmE3LTQyZGYtYTU2YS01ZTAwOTkwYjZlYjciLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzgwMDYyNDA3LCJpYXQiOjE3ODAwNTg4MDcsImVtYWlsIjoiYXN0b2ljYUBnbWFpbC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7ImVtYWlsIjoiYXN0b2ljYUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGhvbmVfdmVyaWZpZWQiOmZhbHNlLCJzdWIiOiJlYmNiZWQ2Yy1mNmE3LTQyZGYtYTU2YS01ZTAwOTkwYjZlYjcifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc4MDA1ODgwN31dLCJzZXNzaW9uX2lkIjoiYjc1ZDI1YWMtMjRhMC00NDlhLTkwMTUtZmU1MmMwZmFjZTU0IiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.mNUbmE2F2Tb8l-kNWFkwbq9ZVPGE-7Vd_ORwJ_Ud3qgILvsh4t6wGrf9tdH1Ijx4l2LL5mLsavJP-Wt1sSr1Kw\",\"token_type\":\"bearer\",\"expires_in\":3600,\"expires_at\":1780062407,\"refresh_token\":\"tgahc2icqpl4\",\"user\":{\"id\":\"ebcbed6c-f6a7-42df-a56a-5e00990b6eb7\",\"aud\":\"authenticated\",\"role\":\"authenticated\",\"email\":\"astoica@gmail.com\",\"email_confirmed_at\":\"2026-05-27T15:35:21.24129Z\",\"phone\":\"\",\"confirmation_sent_at\":\"2026-05-27T15:35:05.351158Z\",\"confirmed_at\":\"2026-05-27T15:35:21.24129Z\",\"recovery_sent_at\":\"2026-05-27T15:43:57.561277Z\",\"last_sign_in_at\":\"2026-05-29T12:46:47.79356283Z\",\"app_metadata\":{\"provider\":\"email\",\"providers\":[\"email\"]},\"user_metadata\":{\"email\":\"astoica@gmail.com\",\"email_verified\":true,\"phone_verified\":false,\"sub\":\"ebcbed6c-f6a7-42df-a56a-5e00990b6eb7\"},\"identities\":[{\"identity_id\":\"95ea24cd-d243-49fc-8f0f-6eacef9dfbc7\",\"id\":\"ebcbed6c-f6a7-42df-a56a-5e00990b6eb7\",\"user_id\":\"ebcbed6c-f6a7-42df-a56a-5e00990b6eb7\",\"identity_data\":{\"email\":\"astoica@gmail.com\",\"email_verified\":true,\"phone_verified\":false,\"sub\":\"ebcbed6c-f6a7-42df-a56a-5e00990b6eb7\"},\"provider\":\"email\",\"last_sign_in_at\":\"2026-05-27T15:35:05.344778Z\",\"created_at\":\"2026-05-27T15:35:05.344829Z\",\"updated_at\":\"2026-05-27T15:35:05.344829Z\",\"email\":\"astoica@gmail.com\"}],\"created_at\":\"2026-05-27T15:35:05.321763Z\",\"updated_at\":\"2026-05-29T12:46:47.840404Z\",\"is_anonymous\":false},\"weak_password\":null}"
+        }
+      ]
+    }
+  ]
+}

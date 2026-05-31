@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.env
+.env.local
+
+# Node / SvelteKit
+node_modules/
+.svelte-kit/
+build/
+dist/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+*.log
+
+# Data
+data/
+*.sqlite
+*.db
+.vercel
+.env*

@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm show *)",
+      "Bash(docker compose *)",
+      "Bash(curl -s http://localhost:8000/api/health)",
+      "Bash(curl -s http://localhost:5173 -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s http://localhost:8000/docs -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s http://localhost:8000/)",
+      "Bash(curl -s http://localhost:8000/healthz)",
+      "Bash(curl -s http://localhost:8000/openapi.json)",
+      "Bash(python3 -c \"import json,sys; paths=json.load\\(sys.stdin\\)['paths']; print\\('\\\\n'.join\\(p for p in paths if any\\(x in p for x in ['/reviews','/environments','/defects','/steps']\\)\\)\\)\")",
+      "Bash(curl -s http://localhost:5173/)",
+      "Bash(python -c ' *)",
+      "Read(//private/tmp/**)",
+      "Bash(curl -v http://localhost:8000/healthz)",
+      "Bash(cat)",
+      "Read(//tmp/**)",
+      "Bash(curl -s http://localhost:8000/projects -H 'Authorization: Bearer test-token')"
+    ]
+  }
+}
