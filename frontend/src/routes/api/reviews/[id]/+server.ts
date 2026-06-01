@@ -1,7 +1,7 @@
 import { adminClient } from '$lib/server/supabase';
 import { getAuthUser } from '$lib/server/auth';
 import { getActiveProject } from '$lib/server/projects';
-import { requireQa } from '$lib/server/permissions';
+import { requireQa, userRolesInProject } from '$lib/server/permissions';
 import { error } from '$lib/server/helpers';
 import type { RequestHandler } from '@sveltejs/kit';
 
@@ -22,9 +22,11 @@ export const DELETE: RequestHandler = async ({ request, params }) => {
   if (review.status !== 'pending') throw error(409, 'only pending reviews can be cancelled');
 
   const isOwner = review.submitted_by === user.id;
+  const projectRoles = userRolesInProject(user, project);
   const isManager =
-    user.roles.includes('admin') ||
-    user.roles.includes('manager');
+    user.roles.includes('owner') ||
+    projectRoles.includes('manager') ||
+    projectRoles.includes('admin');
 
   if (!isOwner && !isManager) throw error(403, 'can only cancel your own reviews');
 

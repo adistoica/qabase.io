@@ -19,10 +19,8 @@ export const DELETE: RequestHandler = async ({ request, params }) => {
 
   if (!comment || comment.project_id !== project.id) throw error(404, 'comment not found');
 
-  const roles: string[] = (user.roles as string[]) ?? [];
-  const isAdmin = roles.includes('admin');
-  if (comment.author_id !== user.id && !isAdmin) {
-    throw error(403, 'only the author or an admin can delete');
+  if (comment.author_id !== user.id && !user.roles?.includes('owner')) {
+    throw error(403, 'only the author or the organisation owner can delete');
   }
 
   const { error: dbError } = await supabase.from('comments').delete().eq('id', params.id);

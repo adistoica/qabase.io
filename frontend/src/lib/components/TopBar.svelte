@@ -1,36 +1,16 @@
 <script lang="ts">
-  import { page } from '$app/stores';
-  import { Bell, MessageSquare, Menu, Rocket, PanelLeft, Settings, Users, LogOut } from '@lucide/svelte';
+  import { Bell, MessageSquare, Menu, Rocket, PanelLeft, LogOut } from '@lucide/svelte';
   import { sidebarOpen, sidebarCollapsed } from '$lib/ui-store';
   import { currentUser } from '$lib/auth-store';
-  import { activeProject } from '$lib/project-store';
   import { goto } from '$app/navigation';
   import { supabase } from '$lib/supabase';
+  import { page } from '$app/stores';
   import ThemeToggle from './ThemeToggle.svelte';
 
-  const navItems = [
-    { label: 'Projects',  path: null,      segments: ['projects'] },
-  ];
-
-  $: slug = $activeProject?.slug ?? null;
+  $: isWorkspace = $page.url.pathname === '/workspace' || $page.url.pathname.startsWith('/workspace/');
+  $: isProjects = $page.url.pathname === '/projects';
 
   let userMenuOpen = false;
-
-  function navHref(item: (typeof navItems)[0]): string {
-    if (item.path === null) return '/projects';
-    if (!slug) return '/projects';
-    return item.path ? `/${slug}/${item.path}` : `/${slug}/`;
-  }
-
-  function isActive(item: (typeof navItems)[0]): boolean {
-    const current = $page.url.pathname;
-    if (item.path === null) return current === '/projects';
-    if (!slug) return false;
-    return item.segments.some((seg) => {
-      if (seg === '') return current === `/${slug}/` || current === `/${slug}`;
-      return current === `/${slug}/${seg}` || current.startsWith(`/${slug}/${seg}/`);
-    });
-  }
 
   async function logout() {
     userMenuOpen = false;
@@ -79,23 +59,26 @@
     <span class="hidden sm:inline font-semibold text-sm tracking-tight">QABase.io</span>
   </a>
 
-  <!-- Divider -->
-  <div class="hidden md:block h-5 w-px bg-[var(--color-border)] mx-1"></div>
-
-  <!-- Main nav -->
-  <nav class="hidden md:flex items-center overflow-x-auto gap-2">
-    {#each navItems as item}
-      {@const active = isActive(item)}
-      <a
-        href={navHref(item)}
-        class="relative px-3 h-12 flex items-center text-sm whitespace-nowrap transition-colors
-          {active
-            ? 'text-[var(--color-foreground)] font-semibold after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:rounded-full after:bg-[var(--color-info)] hover:opacity-80'
-            : 'text-[var(--color-muted-foreground)] hover:text-[var(--color-foreground)]'}"
-      >
-        {item.label}
-      </a>
-    {/each}
+  <!-- Top-level nav -->
+  <nav class="hidden md:flex items-center gap-1 ml-2">
+    <a
+      href="/projects"
+      class="px-3 py-1 rounded-md text-[13px] transition-colors
+        {isProjects
+          ? 'bg-[var(--color-accent)] text-[var(--color-accent-foreground)] font-medium'
+          : 'text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)] hover:text-[var(--color-foreground)]'}"
+    >
+      Projects
+    </a>
+    <a
+      href="/workspace"
+      class="px-3 py-1 rounded-md text-[13px] transition-colors
+        {isWorkspace
+          ? 'bg-[var(--color-accent)] text-[var(--color-accent-foreground)] font-medium'
+          : 'text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)] hover:text-[var(--color-foreground)]'}"
+    >
+      Workspace
+    </a>
   </nav>
 
   <div class="flex-1"></div>
@@ -139,24 +122,6 @@
         <div class="px-3 py-2 border-b flex items-center gap-2">
           <span class="text-xs text-[var(--color-muted-foreground)]">Theme</span>
           <ThemeToggle />
-        </div>
-
-        <!-- Nav items -->
-        <div class="py-1">
-          <a
-            href="/settings"
-            on:click={closeMenu}
-            class="flex items-center gap-2.5 px-3 py-2 text-sm text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)] hover:text-[var(--color-foreground)]"
-          >
-            <Settings size={14} /> Settings
-          </a>
-          <a
-            href="/settings/team"
-            on:click={closeMenu}
-            class="flex items-center gap-2.5 px-3 py-2 text-sm text-[var(--color-muted-foreground)] hover:bg-[var(--color-muted)] hover:text-[var(--color-foreground)]"
-          >
-            <Users size={14} /> Team
-          </a>
         </div>
 
         <div class="border-t py-1">

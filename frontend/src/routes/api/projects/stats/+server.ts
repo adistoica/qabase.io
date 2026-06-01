@@ -7,13 +7,15 @@ export const GET: RequestHandler = async ({ request }) => {
   const supabase = adminClient();
   const user = await getAuthUser(request);
 
-  const { data: allProjects, error: dbError } = await supabase.from('projects').select('id, role_overrides');
+  const { data: allProjects, error: dbError } = await supabase
+    .from('projects')
+    .select('id, role_overrides');
   if (dbError) throw error(500, dbError.message);
 
-  const projects = (allProjects ?? []).filter((p) =>
-    user.roles.includes('admin') || user.id in (p.role_overrides ?? {})
-  );
-  const ids = projects.map((p) => p.id);
+  const isOwner = user.roles.includes('owner');
+  const ids = (allProjects ?? [])
+    .filter((p) => isOwner || (p.role_overrides && user.id in p.role_overrides))
+    .map((p) => p.id);
   if (!ids.length) return json({});
 
   const [

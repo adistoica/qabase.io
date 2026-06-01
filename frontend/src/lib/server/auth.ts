@@ -28,7 +28,7 @@ export async function getAuthUser(request: Request): Promise<AppUser> {
 
   const { data: existing } = await supabase
     .from('users')
-    .select('*')
+    .select('id, email, display_name, roles, is_active, created_at')
     .eq('id', userId)
     .single();
 
@@ -38,12 +38,33 @@ export async function getAuthUser(request: Request): Promise<AppUser> {
   }
 
   // First login — create local profile
+  const email = sbUser.email ?? '';
+  if (!email) throw error(400, 'email address required');
+
+  const { data: pendingInvite } = await supabase
+    .from('team_invitations')
+    .select('id')
+    .eq('status', 'pending')
+    .ilike('email', email)
+    .limit(1)
+    .single();
+
+  // Only the very first user in the system gets owner; subsequent uninvited
+  // signups get no global roles and must be granted access explicitly.
+  // Note: two concurrent first-time signups could both read count=0 and both
+  // receive owner. A DB-level unique constraint on the owner role is the proper
+  // guard; this code handles the more common same-user concurrent login race below.
+  const { count: userCount } = await supabase
+    .from('users')
+    .select('*', { count: 'exact', head: true });
+  const isFirstUser = (userCount ?? 0) === 0;
+
   const newUser: Omit<AppUser, 'created_at'> = {
     id: userId,
-    email: sbUser.email ?? '',
+    email,
     display_name:
-      (sbUser.user_metadata?.full_name as string | undefined) ?? sbUser.email ?? '',
-    roles: ['qa'],
+      (sbUser.user_metadata?.full_name as string | undefined) ?? email,
+    roles: isFirstUser ? ['owner'] : pendingInvite ? ['qa'] : [],
     is_active: true
   };
 
@@ -54,6 +75,16 @@ export async function getAuthUser(request: Request): Promise<AppUser> {
     .single();
 
   if (insertError || !created) {
+    // Another concurrent login for the same user may have inserted the row first.
+    const { data: raced } = await supabase
+      .from('users')
+      .select('id, email, display_name, roles, is_active, created_at')
+      .eq('id', userId)
+      .single();
+    if (raced) {
+      if (!raced.is_active) throw error(401, 'account inactive');
+      return raced as AppUser;
+    }
     throw error(500, 'failed to create user profile');
   }
 

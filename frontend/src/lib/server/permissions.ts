@@ -47,8 +47,8 @@ export function requireAdmin(user: AppUser, project: AppProject): void {
   requireRole(user, project, 'admin');
 }
 
-export function requireSuperAdmin(user: AppUser): void {
-  if (!user.roles?.includes('superadmin')) throw error(403, 'superadmin role required');
+export function requireOwner(user: AppUser): void {
+  if (!user.roles?.includes('owner')) throw error(403, 'organisation owner role required');
 }
 
 export { ROLE_RANK };

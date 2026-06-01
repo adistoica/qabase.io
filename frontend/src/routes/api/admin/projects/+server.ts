@@ -1,12 +1,12 @@
 import { adminClient } from '$lib/server/supabase';
 import { getAuthUser } from '$lib/server/auth';
-import { requireSuperAdmin } from '$lib/server/permissions';
+import { requireOwner } from '$lib/server/permissions';
 import { json } from '$lib/server/helpers';
 import type { RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({ request }) => {
   const user = await getAuthUser(request);
-  requireSuperAdmin(user);
+  requireOwner(user);
 
   const supabase = adminClient();
   const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
@@ -43,7 +43,8 @@ export const GET: RequestHandler = async ({ request }) => {
     }
   }
 
-  const result = (projects ?? []).map((p: any) => ({
+  type ProjectRow = { id: string; name: string; slug: string; created_at: string };
+  const result = (projects ?? []).map((p: ProjectRow) => ({
     id:           p.id,
     name:         p.name,
     slug:         p.slug,
@@ -52,7 +53,7 @@ export const GET: RequestHandler = async ({ request }) => {
     runs_30d:     runs30d[p.id]    ?? 0,
     open_defects: openDefects[p.id] ?? 0,
     last_run_at:  lastRun[p.id]    ?? null,
-  })).sort((a: any, b: any) => (b.runs_30d - a.runs_30d) || (b.case_count - a.case_count));
+  })).sort((a, b) => (b.runs_30d - a.runs_30d) || (b.case_count - a.case_count));
 
   return json(result);
 };

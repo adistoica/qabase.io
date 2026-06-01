@@ -18,12 +18,13 @@ export const GET: RequestHandler = async ({ request }) => {
   const { data, error: dbError } = await supabase.from('projects').select('*');
   if (dbError) throw error(500, dbError.message);
 
-  const projects = (data ?? []).filter((p) => {
-    if (user.roles.includes('admin')) return true;
-    return user.id in (p.role_overrides ?? {});
-  });
+  // Owners see every project; others see only projects they have a role in.
+  const isOwner = user.roles.includes('owner');
+  const accessible = isOwner
+    ? (data ?? [])
+    : (data ?? []).filter((p) => p.role_overrides && user.id in p.role_overrides);
 
-  return json(projects);
+  return json(accessible);
 };
 
 export const POST: RequestHandler = async ({ request }) => {
@@ -54,7 +55,7 @@ export const POST: RequestHandler = async ({ request }) => {
 
   if (dbError) throw error(500, dbError.message);
 
-  audit({
+  await audit({
     actorId: user.id,
     projectId: data.id,
     action: 'project.created',

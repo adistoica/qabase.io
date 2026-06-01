@@ -1,7 +1,6 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import {
-    LayoutDashboard,
     ListChecks,
     Library,
     Recycle,
@@ -12,7 +11,6 @@
     Link2,
     Inbox,
     Compass,
-    History,
     Bug,
     Globe,
     Layers2,
@@ -27,7 +25,9 @@
   import { sidebarOpen, sidebarCollapsed } from '$lib/ui-store';
   import { activeProject, projects } from '$lib/project-store';
 
-  type Item = { path: string; label: string; icon: any };
+  import type { ComponentType, SvelteComponent } from 'svelte';
+
+  type Item = { path: string; label: string; icon: ComponentType<SvelteComponent> };
   type Section = { title: string; items: Item[] };
 
   const sections: Section[] = [
@@ -50,13 +50,6 @@
         { path: 'queue',        label: 'My queue',       icon: Inbox },
         { path: 'exploratory',  label: 'Exploratory',    icon: Compass },
         { path: 'environments', label: 'Environments',   icon: Globe },
-      ],
-    },
-    {
-      title: 'Insights',
-      items: [
-        { path: '',      label: 'Dashboard', icon: LayoutDashboard },
-        { path: 'audit', label: 'Audit log', icon: History },
       ],
     },
     {

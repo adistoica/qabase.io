@@ -1,12 +1,12 @@
 import { adminClient } from '$lib/server/supabase';
 import { getAuthUser } from '$lib/server/auth';
-import { requireSuperAdmin } from '$lib/server/permissions';
+import { requireOwner } from '$lib/server/permissions';
 import { json } from '$lib/server/helpers';
 import type { RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({ request }) => {
   const user = await getAuthUser(request);
-  requireSuperAdmin(user);
+  requireOwner(user);
 
   const supabase = adminClient();
   const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
@@ -29,8 +29,9 @@ export const GET: RequestHandler = async ({ request }) => {
   }
 
   const userActivity: Record<string, { events30d: number; lastSeen: string | null }> = {};
-  for (const e of recentEvents ?? []) {
-    const uid = e.actor_id as string;
+  type EventRow = { actor_id: string; created_at: string };
+  for (const e of (recentEvents ?? []) as EventRow[]) {
+    const uid = e.actor_id;
     if (!userActivity[uid]) userActivity[uid] = { events30d: 0, lastSeen: null };
     userActivity[uid].events30d++;
     if (!userActivity[uid].lastSeen || e.created_at > userActivity[uid].lastSeen!) {
@@ -38,7 +39,8 @@ export const GET: RequestHandler = async ({ request }) => {
     }
   }
 
-  const result = (users ?? []).map((u: any) => ({
+  type UserRow = { id: string; email: string; display_name: string; roles: string[]; is_active: boolean; created_at: string };
+  const result = (users ?? []).map((u: UserRow) => ({
     id:           u.id,
     email:        u.email,
     display_name: u.display_name,

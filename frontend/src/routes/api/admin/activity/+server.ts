@@ -1,12 +1,12 @@
 import { adminClient } from '$lib/server/supabase';
 import { getAuthUser } from '$lib/server/auth';
-import { requireSuperAdmin } from '$lib/server/permissions';
+import { requireOwner } from '$lib/server/permissions';
 import { json } from '$lib/server/helpers';
 import type { RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({ request }) => {
   const user = await getAuthUser(request);
-  requireSuperAdmin(user);
+  requireOwner(user);
 
   const supabase = adminClient();
 
@@ -25,7 +25,8 @@ export const GET: RequestHandler = async ({ request }) => {
   const actorMap: Record<string, { email: string; display_name: string }> = {};
   for (const a of actors ?? []) actorMap[a.id] = { email: a.email, display_name: a.display_name };
 
-  const result = (events ?? []).map((e: any) => ({
+  type EventRow = { id: string; action: string; created_at: string; actor_id: string | null; project_id: string | null };
+  const result = (events ?? []).map((e: EventRow) => ({
     id:          e.id,
     action:      e.action,
     created_at:  e.created_at,

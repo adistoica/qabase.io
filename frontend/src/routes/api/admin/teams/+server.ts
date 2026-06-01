@@ -1,12 +1,12 @@
 import { adminClient } from '$lib/server/supabase';
 import { getAuthUser } from '$lib/server/auth';
-import { requireSuperAdmin } from '$lib/server/permissions';
+import { requireOwner } from '$lib/server/permissions';
 import { json } from '$lib/server/helpers';
 import type { RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({ request }) => {
   const user = await getAuthUser(request);
-  requireSuperAdmin(user);
+  requireOwner(user);
 
   const supabase = adminClient();
 
@@ -29,7 +29,8 @@ export const GET: RequestHandler = async ({ request }) => {
   const userMap: Record<string, { email: string; display_name: string }> = {};
   for (const u of users ?? []) userMap[u.id] = { email: u.email, display_name: u.display_name };
 
-  const result = (teams ?? []).map((t: any) => ({
+  type TeamRow = { id: string; name: string; slug: string; owner_id: string; created_at: string };
+  const result = (teams ?? []).map((t: TeamRow) => ({
     id:           t.id,
     name:         t.name,
     slug:         t.slug,

@@ -29,7 +29,8 @@ export const PUT: RequestHandler = async ({ request, params }) => {
 
   const projectRoles: string[] = (existing.role_overrides as Record<string, string[]>)?.[user.id] ?? [];
   const isProjectAdmin = projectRoles.includes('admin');
-  if (!user.roles.includes('admin') && !isProjectAdmin) throw error(403, 'admin only');
+  const isOwner = user.roles.includes('owner');
+  if (!isOwner && !isProjectAdmin) throw error(403, 'project admin or organisation owner required');
 
   const update: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (body.name !== undefined) update.name = body.name;
@@ -37,7 +38,16 @@ export const PUT: RequestHandler = async ({ request, params }) => {
   if (body.custom_fields !== undefined) update.custom_fields = body.custom_fields;
   if (body.integrations !== undefined) update.integrations = body.integrations;
   if (body.ai !== undefined) update.ai = body.ai;
-  if (body.role_overrides !== undefined) update.role_overrides = body.role_overrides;
+  if (body.role_overrides !== undefined) {
+    const validProjectRoles = new Set(['viewer', 'qa', 'manager', 'admin']);
+    for (const [, roles] of Object.entries(body.role_overrides as Record<string, string[]>)) {
+      if (!Array.isArray(roles)) throw error(400, 'role_overrides values must be arrays');
+      for (const r of roles) {
+        if (!validProjectRoles.has(r)) throw error(400, `invalid project role: ${r}`);
+      }
+    }
+    update.role_overrides = body.role_overrides;
+  }
 
   const { data, error: dbError } = await supabase
     .from('projects')
@@ -48,7 +58,7 @@ export const PUT: RequestHandler = async ({ request, params }) => {
 
   if (dbError) throw error(500, dbError.message);
 
-  audit({
+  await audit({
     actorId: user.id,
     projectId: params.id,
     action: 'project.updated',
@@ -73,7 +83,8 @@ export const DELETE: RequestHandler = async ({ request, params }) => {
 
   const projectRoles: string[] = (existing.role_overrides as Record<string, string[]>)?.[user.id] ?? [];
   const isProjectAdmin = projectRoles.includes('admin');
-  if (!user.roles.includes('admin') && !isProjectAdmin) throw error(403, 'admin only');
+  const isOwner = user.roles.includes('owner');
+  if (!isOwner && !isProjectAdmin) throw error(403, 'project admin or organisation owner required');
 
   const { data: allProjects } = await supabase.from('projects').select('id');
   if ((allProjects?.length ?? 0) <= 1) {
@@ -93,11 +104,15 @@ export const DELETE: RequestHandler = async ({ request, params }) => {
     'requirements',
     'steps',
     'share_tokens'
-  ]) {
-    await supabase.from(table).delete().eq('project_id', params.id);
+  ] as const) {
+    const { error: delErr } = await supabase.from(table).delete().eq('project_id', params.id);
+    if (delErr) throw error(500, `failed to delete ${table}: ${delErr.message}`);
   }
 
-  audit({
+  const { error: dbError } = await supabase.from('projects').delete().eq('id', params.id);
+  if (dbError) throw error(500, dbError.message);
+
+  await audit({
     actorId: user.id,
     projectId: params.id,
     action: 'project.deleted',
@@ -105,9 +120,6 @@ export const DELETE: RequestHandler = async ({ request, params }) => {
     targetId: params.id,
     payload: { slug: existing.slug }
   });
-
-  const { error: dbError } = await supabase.from('projects').delete().eq('id', params.id);
-  if (dbError) throw error(500, dbError.message);
 
   return new Response(null, { status: 204 });
 };

@@ -78,7 +78,7 @@
   $: signupPath   = overview ? sparkline(overview.signup_trend.map((t) => t.count))   : '';
 
   onMount(async () => {
-    if (!$currentUser?.roles?.includes('superadmin')) { await goto('/'); return; }
+    if (!$currentUser?.roles?.includes('owner')) { await goto('/'); return; }
     try {
       [overview, users, activity, teams, projects] = await Promise.all([
         api.get<AdminOverview>('/admin/overview'),
@@ -92,7 +92,7 @@
   });
 </script>
 
-<PageHeader title="Superadmin" subtitle="Platform-wide health overview." />
+<PageHeader title="Workspace Settings" subtitle="Platform-wide health overview." />
 
 {#if loading}
   <div class="animate-pulse space-y-6">

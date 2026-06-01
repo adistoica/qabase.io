@@ -7,7 +7,7 @@
   import { api } from '$lib/api';
   import { supabase } from '$lib/supabase';
   import { currentUser } from '$lib/auth-store';
-  import { activeProjectId, projects } from '$lib/project-store';
+  import { projects } from '$lib/project-store';
   import { themeSettings } from '$lib/theme-store';
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
@@ -15,7 +15,14 @@
   import { get } from 'svelte/store';
   import type { Project, User } from '$lib/api';
 
-  $: hideSidebar = $page.url.pathname === '/projects' || $page.url.pathname.startsWith('/admin');
+  $: useWorkspaceSidebar = $page.url.pathname === '/workspace'
+    || $page.url.pathname.startsWith('/workspace/')
+    || $page.url.pathname === '/settings/team'
+    || $page.url.pathname.startsWith('/settings/team/');
+
+  $: hideSidebar = $page.url.pathname === '/projects'
+    || $page.url.pathname.startsWith('/admin')
+    || useWorkspaceSidebar;
 
   let loading = true;
 
@@ -67,9 +74,13 @@
       {#if !hideSidebar}
         <Sidebar />
       {/if}
-      <main class="flex-1 min-w-0 overflow-y-auto bg-[var(--color-background)] p-4 md:p-6">
+      {#if useWorkspaceSidebar}
         <slot />
-      </main>
+      {:else}
+        <main class="flex-1 min-w-0 overflow-y-auto bg-[var(--color-background)] p-4 md:p-6">
+          <slot />
+        </main>
+      {/if}
     </div>
   </div>
 {/if}

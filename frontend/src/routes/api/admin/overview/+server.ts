@@ -1,12 +1,12 @@
 import { adminClient } from '$lib/server/supabase';
 import { getAuthUser } from '$lib/server/auth';
-import { requireSuperAdmin } from '$lib/server/permissions';
+import { requireOwner } from '$lib/server/permissions';
 import { json } from '$lib/server/helpers';
 import type { RequestHandler } from '@sveltejs/kit';
 
 export const GET: RequestHandler = async ({ request }) => {
   const user = await getAuthUser(request);
-  requireSuperAdmin(user);
+  requireOwner(user);
 
   const supabase = adminClient();
   const now = new Date();
@@ -36,16 +36,16 @@ export const GET: RequestHandler = async ({ request }) => {
     supabase.from('runs').select('*', { count: 'exact', head: true }).eq('status', 'in_progress'),
     supabase.from('users').select('*', { count: 'exact', head: true }).gte('created_at', since7d),
     // active users = distinct actor_ids in audit_events last 7d
-    supabase.from('audit_events').select('actor_id').gte('created_at', since7d).not('actor_id', 'is', null),
+    supabase.from('audit_events').select('actor_id').gte('created_at', since7d).not('actor_id', 'is', null).limit(10000),
     // activity trend: audit events per day for last 14d
-    supabase.from('audit_events').select('created_at').gte('created_at', since14d),
+    supabase.from('audit_events').select('created_at').gte('created_at', since14d).limit(10000),
     // signup trend: user created_at for last 14d
-    supabase.from('users').select('created_at').gte('created_at', since14d),
+    supabase.from('users').select('created_at').gte('created_at', since14d).limit(10000),
   ]);
 
-  const activeUsers = new Set((activeUsersData ?? []).map((r: any) => r.actor_id)).size;
+  const activeUsers = new Set((activeUsersData ?? []).map((r: { actor_id: string }) => r.actor_id)).size;
 
-  function buildBuckets(rows: any[], field: string) {
+  function buildBuckets(rows: { [key: string]: string }[], field: string) {
     const buckets: Record<string, number> = {};
     for (let i = 13; i >= 0; i--) {
       const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
